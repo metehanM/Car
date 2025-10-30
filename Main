@@ -1,1 +1,163 @@
+--[[
+	Advanced Car Chassis System - Main Entry Point
+	
+	Bu dosyayı araç modelinize ekleyin ve otomatik olarak başlatılacaktır.
+	
+	KULLANIM:
+	1. Bu script'i araç modelinizin içine koyun
+	2. Araç modelinde "Chassis" adında bir BasePart olmalı (ana gövde)
+	3. Tekerlekler "Wheel" kelimesini içeren Part'lar olmalı
+	4. Oyunu başlatın!
+]]
 
+-- Modülleri yükle
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+-- src klasörünü bul (script'in konumuna göre)
+local srcFolder = script.Parent:FindFirstChild("src")
+if not srcFolder then
+	error("❌ 'src' klasörü bulunamadı! Dosya yapısını kontrol edin.")
+end
+
+-- ChassisCore modülünü yükle
+local ChassisCore = require(srcFolder.ChassisCore)
+local Config = require(srcFolder.Config)
+
+-- Araç modelini al
+local carModel = script.Parent
+assert(carModel:IsA("Model"), "Bu script bir Model içinde olmalıdır!")
+
+print("🚗 ====================================")
+print("🚗 Advanced Car Chassis System")
+print("🚗 Araç yükleniyor: " .. carModel.Name)
+print("🚗 ====================================")
+
+-- Chassis instance oluştur
+local chassis = ChassisCore.new(carModel, Config)
+
+-- Sistemi başlat
+chassis:Initialize()
+chassis:Start()
+
+-- Temizlik fonksiyonu
+carModel.AncestryChanged:Connect(function()
+	if not carModel:IsDescendantOf(game) then
+		chassis:Destroy()
+		print("🗑️ Araç silindi, chassis temizlendi")
+	end
+end)
+
+-- GUI oluştur (hız göstergesi, vites göstergesi vs.)
+local player = game.Players.LocalPlayer
+if player then
+	local function createSpeedometer()
+		-- ScreenGui oluştur
+		local screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "CarHUD"
+		screenGui.ResetOnSpawn = false
+		screenGui.Parent = player.PlayerGui
+		
+		-- Arka plan frame
+		local frame = Instance.new("Frame")
+		frame.Name = "SpeedometerFrame"
+		frame.Size = UDim2.new(0, 250, 0, 150)
+		frame.Position = UDim2.new(1, -270, 1, -170)
+		frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+		frame.BackgroundTransparency = 0.3
+		frame.BorderSizePixel = 0
+		frame.Parent = screenGui
+		
+		-- UICorner
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 12)
+		corner.Parent = frame
+		
+		-- Hız göstergesi
+		local speedLabel = Instance.new("TextLabel")
+		speedLabel.Name = "Speed"
+		speedLabel.Size = UDim2.new(1, -20, 0, 50)
+		speedLabel.Position = UDim2.new(0, 10, 0, 10)
+		speedLabel.BackgroundTransparency = 1
+		speedLabel.Text = "0 KM/H"
+		speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		speedLabel.TextScaled = true
+		speedLabel.Font = Enum.Font.GothamBold
+		speedLabel.Parent = frame
+		
+		-- RPM göstergesi
+		local rpmLabel = Instance.new("TextLabel")
+		rpmLabel.Name = "RPM"
+		rpmLabel.Size = UDim2.new(0.5, -15, 0, 30)
+		rpmLabel.Position = UDim2.new(0, 10, 0, 70)
+		rpmLabel.BackgroundTransparency = 1
+		rpmLabel.Text = "RPM: 0"
+		rpmLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+		rpmLabel.TextScaled = true
+		rpmLabel.Font = Enum.Font.Gotham
+		rpmLabel.Parent = frame
+		
+		-- Vites göstergesi
+		local gearLabel = Instance.new("TextLabel")
+		gearLabel.Name = "Gear"
+		gearLabel.Size = UDim2.new(0.5, -15, 0, 30)
+		gearLabel.Position = UDim2.new(0.5, 5, 0, 70)
+		gearLabel.BackgroundTransparency = 1
+		gearLabel.Text = "VITES: 1"
+		gearLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+		gearLabel.TextScaled = true
+		gearLabel.Font = Enum.Font.Gotham
+		gearLabel.Parent = frame
+		
+		-- Throttle göstergesi
+		local throttleBar = Instance.new("Frame")
+		throttleBar.Name = "ThrottleBar"
+		throttleBar.Size = UDim2.new(0, 5, 0.5, 0)
+		throttleBar.Position = UDim2.new(0, 5, 0.25, 0)
+		throttleBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+		throttleBar.BorderSizePixel = 0
+		throttleBar.Parent = frame
+		
+		-- Güncelleme döngüsü
+		game:GetService("RunService").RenderStepped:Connect(function()
+			if chassis and chassis.Active then
+				speedLabel.Text = string.format("%.0f KM/H", chassis.SpeedKMH)
+				
+				local engineInfo = chassis.Systems.Engine:GetInfo()
+				rpmLabel.Text = string.format("RPM: %d", engineInfo.RPM)
+				
+				if engineInfo.IsReverse then
+					gearLabel.Text = "VITES: R"
+					gearLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+				else
+					gearLabel.Text = string.format("VITES: %d", engineInfo.Gear)
+					gearLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+				end
+				
+				-- RPM bar rengi
+				local rpmRatio = engineInfo.RPM / Config.Engine.RedlineRPM
+				if rpmRatio > 0.9 then
+					rpmLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+				elseif rpmRatio > 0.7 then
+					rpmLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+				else
+					rpmLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+				end
+				
+				-- Throttle bar
+				throttleBar.Size = UDim2.new(0, 5, math.abs(chassis.Inputs.Throttle) * 0.5, 0)
+			end
+		end)
+		
+		return screenGui
+	end
+	
+	-- Oyuncu araca girdiğinde HUD'u oluştur
+	spawn(function()
+		wait(1)  -- Script yüklenmesini bekle
+		createSpeedometer()
+	end)
+end
+
+print("✅ Araç sistemi başarıyla yüklendi!")
+print("🎮 Kontroller: W/S - Gaz/Fren | A/D - Direksiyon | Space - El Freni")
