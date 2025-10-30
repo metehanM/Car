@@ -29,14 +29,32 @@ Gelişmiş, modüler ve gerçekçi bir Roblox araba chassis sistemi. Bu sistem p
   └── ExampleCar.lua         # Örnek kullanım
 
 Main                         # Ana giriş noktası
+QuickSetup.lua              # ⚡ Otomatik kurulum (Önerilen!)
+ModelBuilder.lua            # 🏗️ Otomatik model oluşturucu
 ```
 
 ## 🚀 Hızlı Başlangıç
 
-1. Tüm dosyaları Roblox Studio'ya aktarın
-2. Araç modelinize `Main` script'ini ekleyin
-3. `Config.lua` dosyasından ayarları özelleştirin
-4. Oyunu başlatın ve sürüşün keyfini çıkarın!
+### ⚡ Otomatik Kurulum (ÖNERİLEN)
+
+**Kod ile otomatik model oluşturma:**
+
+1. `src` klasörünü **ReplicatedStorage**'a koyun
+2. `QuickSetup.lua` dosyasını **ServerScriptService**'e koyun
+3. **F5** ile oyunu başlatın
+4. Araç otomatik olarak oluşturulur ve çalışır! 🎉
+
+Detaylı rehber → **`QUICK_START.md`**
+
+### 🔧 Manuel Kurulum
+
+1. Kendi araç modelinizi oluşturun (veya `ModelBuilder.lua` kullanın)
+2. `Main` script'ini modele ekleyin
+3. `src` klasörünü modele ekleyin
+4. `Config.lua` dosyasından ayarları özelleştirin
+5. Oyunu başlatın!
+
+Detaylı rehber → **`SETUP_GUIDE.md`**
 
 ## 🎮 Kontroller
 
@@ -58,7 +76,11 @@ Main                         # Ana giriş noktası
 
 ## 📖 Dokümantasyon
 
-Her modül kendi içinde detaylı açıklamalar içerir. Modüler yapı sayesinde sadece ihtiyacınız olan özellikleri kullanabilirsiniz.
+- **`QUICK_START.md`** - ⚡ Otomatik model oluşturma rehberi (2 dakika)
+- **`SETUP_GUIDE.md`** - 📖 Detaylı manuel kurulum rehberi
+- **`FEATURES.md`** - 🎯 Tüm özellikler ve teknik detaylar
+- **`CHANGELOG.md`** - 📝 Versiyon geçmişi ve güncellemeler
+- **Her modül** - Kod içinde detaylı açıklamalar
 
 ## 🔧 Geliştirme
 
