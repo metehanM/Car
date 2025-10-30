@@ -31,6 +31,7 @@ Gelişmiş, modüler ve gerçekçi bir Roblox araba chassis sistemi. Bu sistem p
 Main                         # Ana giriş noktası
 QuickSetup.lua              # ⚡ Otomatik kurulum (Önerilen!)
 ModelBuilder.lua            # 🏗️ Otomatik model oluşturucu
+StylishModelBuilder.lua     # ✨ Şık ve modern model oluşturucu (YENİ!)
 ```
 
 ## 🚀 Hızlı Başlangıç
