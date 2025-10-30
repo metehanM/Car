@@ -1,0 +1,25 @@
+# Roblox Studio dosyaları
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+
+# Geçici dosyalar
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# IDE dosyaları
+.vscode/
+.idea/
+*.sublime-*
+
+# OS dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Log dosyaları
+*.log
